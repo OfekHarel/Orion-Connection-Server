@@ -1,11 +1,16 @@
 
 class DataBase:
+    """
+    A structure that contains all the data of the server - a list of each type of connection.
+    """
     def __init__(self):
         self.sync_connections = []
         self.connections = []
-        self.ids = []
 
     def add(self, sync_connection=None, bridge_connection=None):
+        """
+        This function adds a connection to the connection's type list.
+        """
         if sync_connection is not None:
             self.sync_connections.append(sync_connection)
         elif bridge_connection is not None:
@@ -14,6 +19,9 @@ class DataBase:
             pass
 
     def remove(self, sync_connection=None, bridge_connection=None):
+        """
+        This function removes a connection to the connection's type list.
+        """
         if sync_connection is not None:
             self.sync_connections.remove(sync_connection)
         elif bridge_connection is None:
@@ -22,6 +30,9 @@ class DataBase:
             pass
 
     def __str__(self):
+        """
+        A full description of the database's data
+        """
         s = "Sync-> "
         for c in self.sync_connections:
             s += c.__str__() + " | "

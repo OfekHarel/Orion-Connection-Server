@@ -5,17 +5,29 @@ from utils.Networking import Operations
 
 
 class BridgeConnection:
+    """
+    A bridge typed connection defines the flow connection between an app to a computer.
+    """
     def __init__(self, app: socket, computer: socket):
         self.app = app
         self.computer = computer
 
     def __str__(self):
+        """
+        A full description of the connection
+        """
         return "App Host: {} - Comp Host: {}".format(self.app.getpeername(), self.app.getpeername())
 
     def activate(self):
+        """
+        This function builds the virtual bridge between thr devices.
+        This bridge allows flow of unsynchronized network transportation.
+        If a msg in the bridge is the type of DISCONNECT it will return.
+        :return: DISCONNECT if it occurred.
+        """
         msg = Networking.receive(self.app)
         if msg != "":
-            if Networking.get_operation(msg) == Operations.DISCONNECT:
+            if Networking.get_disconnected(msg) == Operations.DISCONNECT:
                 return Operations.DISCONNECT
 
             else:
@@ -23,11 +35,14 @@ class BridgeConnection:
 
         msg = Networking.receive(self.computer)
         if msg != "":
-            if Networking.get_operation(msg) == Operations.DISCONNECT:
+            if Networking.get_disconnected(msg) == Operations.DISCONNECT:
                 return Operations.DISCONNECT
 
             else:
                 Networking.send(self.app, msg)
 
     def close(self):
+        """
+        This function will demolish a virtual bridge between the devices.
+        """
         pass

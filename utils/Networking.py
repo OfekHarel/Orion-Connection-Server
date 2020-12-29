@@ -8,16 +8,31 @@ HEADER = 3
 
 
 def split(msg: str):
+    """
+    This function will split the msg to a list according to the separator char.
+    :param msg: A raw msg from network to split.
+    :return: A list when each index contains a part of the msg.
+    """
     msg = msg.split('!')
     return msg[:len(msg) - 1]
 
 
-def get_operation(msg: str):
+def get_disconnected(msg: str):
+    """
+    This function will find if the msg contains a DISCONNECTED operation
+    :param msg: A raw msg from network.
+    :return: None or DISCONNECTED according to the msg
+    """
     msg = split(msg)
     return Operations.DISCONNECT if msg[0] == Operations.DISCONNECT.value else None
 
 
 def sync_msg(msg: str):
+    """
+    This function will handle any sync type msg and obtain from it the wanted info
+    :param msg: A raw msg from network.
+    :return: The type of the device and the id from the msg
+    """
     msg = split(msg)
     dev = Devices.COMPUTER if msg[0] == Devices.COMPUTER.value else Devices.APP
     id_num = msg[2]
@@ -25,12 +40,20 @@ def sync_msg(msg: str):
 
 
 def send(sock: socket, msg: str):
+    """
+    :param sock: The network socket to send from.
+    :param msg: The protocol based msg.
+    """
     size = str(len(msg)).zfill(HEADER)
     sock.send(bytes(size.encode()))
     sock.send(msg.encode())
 
 
 def receive(sock: socket):
+    """
+    :param sock: The network socket to receive from.
+    :return: The raw decoded msg from the network.
+    """
     try:
         size = int(str(sock.recv(HEADER).decode()))
         req = sock.recv(size + 1)
@@ -41,6 +64,11 @@ def receive(sock: socket):
 
 
 def assemble(*msg: str):
+    """
+    This function will create a string that follows the protocol.
+    :param msg: Strings to create the protocol string
+    :return: The full protocol string
+    """
     final = ''
     for request in msg:
         final += "{}{}".format(request, SEP)
@@ -49,6 +77,9 @@ def assemble(*msg: str):
 
 
 class Operations(Enum):
+    """
+    Any operation that the server can send or do.
+    """
     INVALID = "INVALID"
     VALID = "VALID"
     DISCONNECT = "DICON"
