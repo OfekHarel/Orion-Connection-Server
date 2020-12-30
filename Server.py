@@ -11,6 +11,10 @@ from utils.Networking import Operations
 
 
 class BridgeServer:
+    """
+    A class to represent a server that it's job is to be a "bridge" between the devices.
+    To transfer a msg from one device to the other.
+    """
     def __init__(self):
         self.server_sock = socket.socket()
         self.server_sock.bind(('', 1690))
@@ -72,8 +76,9 @@ class BridgeServer:
         while not is_done:
             is_done = bridge.activate()
             if is_done == Operations.DISCONNECT:
-                self.data.connections.remove(bridge)
                 is_done = True
+
+        self.data.remove(bridge_connection=bridge)
 
     def run(self):
         """
