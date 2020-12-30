@@ -1,3 +1,4 @@
+from connections.SyncConnection import SyncConnection
 import socket
 
 from utils import Networking
@@ -8,9 +9,10 @@ class BridgeConnection:
     """
     A bridge typed connection defines the flow connection between an app to a computer.
     """
-    def __init__(self, app: socket, computer: socket):
+    def __init__(self, app: socket, sync: SyncConnection):
         self.app = app
-        self.computer = computer
+        self.computer = sync.sock
+        self.id = sync.id
 
     def __str__(self):
         """
@@ -26,7 +28,9 @@ class BridgeConnection:
         :return: DISCONNECT if it occurred.
         """
         msg = Networking.receive(self.app)
-        if msg != "":
+        if msg is None:
+            pass
+        elif msg != "":
             if Networking.get_disconnected(msg) == Operations.DISCONNECT:
                 return Operations.DISCONNECT
 
@@ -34,7 +38,9 @@ class BridgeConnection:
                 Networking.send(self.computer, msg)
 
         msg = Networking.receive(self.computer)
-        if msg != "":
+        if msg is None:
+            return Operations.DISCONNECT
+        elif msg != "":
             if Networking.get_disconnected(msg) == Operations.DISCONNECT:
                 return Operations.DISCONNECT
 

@@ -34,7 +34,7 @@ class BridgeServer:
         if dev is Devices.COMPUTER:  # if a computer is trying to connect
             sync_conn = SyncConnection(sock, id_num)
             if self.dataTools.is_id_valid(Devices.COMPUTER, id_num):
-                self.data.add(sync_connection=sync_conn)
+                self.data.add(sync=sync_conn)
                 msg = Networking.assemble(Operations.VALID.value)
             else:
                 msg = Networking.assemble(Operations.INVALID.value)
@@ -42,10 +42,10 @@ class BridgeServer:
         elif dev is Devices.APP:  # if an app is trying to connect
             if self.dataTools.is_id_valid(Devices.APP, id_num):
                 comp = self.dataTools.find(id_num)
-                bridge = BridgeConnection(sock, comp.sock)
+                bridge = BridgeConnection(sock, comp)
 
-                self.data.add(bridge_connection=bridge)
-                self.data.remove(sync_connection=comp)
+                self.data.add(bridge=bridge)
+                self.data.remove(sync=comp)
 
                 msg = Networking.assemble(Operations.VALID.value)
                 synced = True, bridge
@@ -71,14 +71,13 @@ class BridgeServer:
         """
             The bridge phase. Main phase of each socket, where the communication is happening.
         """
-        is_done = False
+        dis = None
 
-        while not is_done:
-            is_done = bridge.activate()
-            if is_done == Operations.DISCONNECT:
-                is_done = True
+        while dis is None:
+            dis = bridge.activate()
 
-        self.data.remove(bridge_connection=bridge)
+        self.data.add(sync=SyncConnection(bridge.computer, bridge.id))
+        self.data.remove(bridge=bridge)
 
     def run(self):
         """

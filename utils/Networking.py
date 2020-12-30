@@ -60,7 +60,7 @@ def receive(sock: socket):
         return req.decode()
 
     except Exception as e:
-        print(e.__traceback__)
+        pass
 
 
 def assemble(*msg: str):
