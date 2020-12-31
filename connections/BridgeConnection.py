@@ -2,23 +2,24 @@ from connections.SyncConnection import SyncConnection
 import socket
 
 from utils import Networking
-from utils.Networking import Operations
+from utils.Networking import Operations, split
 
 
 class BridgeConnection:
     """
     A bridge typed connection defines the flow connection between an app to a computer.
     """
-    def __init__(self, app: socket, sync: SyncConnection):
+    def __init__(self, app: socket, sync: SyncConnection, name: str):
         self.app = app
         self.computer = sync.sock
         self.id = sync.id
+        self.name = name
 
     def __str__(self):
         """
         A full description of the connection
         """
-        return "App Host: {} - Comp Host: {}".format(self.app.getpeername(), self.app.getpeername())
+        return "\nApp Host: {}\nComp Host: {}\nName: {}".format(self.app.getpeername(), self.app.getpeername(), self.name)
 
     def activate(self):
         """
@@ -29,13 +30,16 @@ class BridgeConnection:
         """
         msg = Networking.receive(self.app)
         if msg is None:
-            pass
+            print("none")
+            return
         elif msg != "":
-            if Networking.get_disconnected(msg) == Operations.DISCONNECT:
-                return Operations.DISCONNECT
+            split = Networking.split(msg)
+            if split[0] == self.name:
+                if Networking.get_disconnected(msg) == Operations.DISCONNECT:
+                    return Operations.DISCONNECT
 
-            else:
-                Networking.send(self.computer, msg)
+                else:
+                    Networking.send(self.computer, Networking.assemble(split[1]))
 
         msg = Networking.receive(self.computer)
         if msg is None:

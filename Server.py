@@ -27,32 +27,39 @@ class BridgeServer:
         """
             Sync phase of each type of device.
         """
-        dev, id_num = Networking.sync_msg(Networking.receive(sock))
-        msg = None
+        msg = Networking.receive(sock)
         synced = False, None
 
-        if dev is Devices.COMPUTER:  # if a computer is trying to connect
-            sync_conn = SyncConnection(sock, id_num)
-            if self.dataTools.is_id_valid(Devices.COMPUTER, id_num):
-                self.data.add(sync=sync_conn)
-                msg = Networking.assemble(Operations.VALID.value)
-            else:
-                msg = Networking.assemble(Operations.INVALID.value)
+        if msg is not None:
+            dev, id_num = Networking.sync_msg(msg)
+            msg = None
 
-        elif dev is Devices.APP:  # if an app is trying to connect
-            if self.dataTools.is_id_valid(Devices.APP, id_num):
-                comp = self.dataTools.find(id_num)
-                bridge = BridgeConnection(sock, comp)
+            if dev is Devices.COMPUTER:  # if a computer is trying to connect
+                sync_conn = SyncConnection(sock, id_num)
+                if self.dataTools.is_id_valid(Devices.COMPUTER, id_num):
+                    self.data.add(sync=sync_conn)
+                    msg = Networking.assemble(Operations.VALID.value)
 
-                self.data.add(bridge=bridge)
-                self.data.remove(sync=comp)
+                else:
+                    msg = Networking.assemble(Operations.INVALID.value)
 
-                msg = Networking.assemble(Operations.VALID.value)
-                synced = True, bridge
-            else:
-                msg = Networking.assemble(Operations.INVALID.value)
+            elif dev is Devices.APP:  # if an app is trying to connect
+                if self.dataTools.is_id_valid(Devices.APP, id_num):
+                    Networking.send(sock, Networking.assemble(Operations.VALID.value))
+                    comp = self.dataTools.find(id_num)
+                    name = Networking.split(Networking.receive(sock))[0]
+                    bridge = BridgeConnection(sock, comp, name)
 
-        Networking.send(sock, msg)
+                    self.data.add(bridge=bridge)
+                    self.data.remove(sync=comp)
+
+                    synced = True, bridge
+                else:
+                    msg = Networking.assemble(Operations.INVALID.value)
+            
+            if msg is not None:
+                Networking.send(sock, msg)
+
         return synced
 
     def __manage__(self):
@@ -62,7 +69,6 @@ class BridgeServer:
        """
         sock, address = self.server_sock.accept()
         synced, bridge = self.__sync__(sock)
-
         if synced:
             t = threading.Thread(target=self.__bridge__, args=(bridge, address))
             t.start()

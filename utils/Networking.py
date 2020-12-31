@@ -47,6 +47,7 @@ def send(sock: socket, msg: str):
     size = str(len(msg)).zfill(HEADER)
     sock.send(bytes(size.encode()))
     sock.send(msg.encode())
+    print("send "+ msg)
 
 
 def receive(sock: socket):
@@ -56,10 +57,12 @@ def receive(sock: socket):
     """
     try:
         size = int(str(sock.recv(HEADER).decode()))
-        req = sock.recv(size + 1)
-        return req.decode()
+        msg = sock.recv(size + 1).decode()
+        print("recv "+ msg)
+        return msg
 
     except Exception as e:
+        print(e)
         pass
 
 

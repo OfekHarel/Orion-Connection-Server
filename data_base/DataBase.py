@@ -40,6 +40,6 @@ class DataBase:
 
         s += "\nConnections-> "
         for c in self.connections:
-            s += c.__str__() + " | "
+            s += c.__str__()
 
         return s

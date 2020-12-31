@@ -16,7 +16,10 @@ if __name__ == '__main__':
             print(msg)
             done = True
 
-    Networking.send(s, "BLAH")
+    if msg == "VALID":
+        Networking.send(s, Networking.assemble("BLAH"))
+        print("Blah")
+
     msg = ""
     done = False
     while not done:
