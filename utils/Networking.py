@@ -24,7 +24,7 @@ def get_disconnected(msg: str):
     :return: None or DISCONNECTED according to the msg
     """
     msg = split(msg)
-    return Operations.DISCONNECT if msg[0] == Operations.DISCONNECT.value else None
+    return msg[0] == Operations.DISCONNECT.value
 
 
 def sync_msg(msg: str):
@@ -85,4 +85,5 @@ class Operations(Enum):
     """
     INVALID = "INVALID"
     VALID = "VALID"
-    DISCONNECT = "DICON"
+    DISCONNECT = "DISCON"
+    PAIRED = "HELLO"

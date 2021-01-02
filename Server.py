@@ -73,11 +73,12 @@ class BridgeServer:
             t = threading.Thread(target=self.__bridge__, args=(bridge, address))
             t.start()
 
-    def __bridge__(self, bridge, address):
+    def __bridge__(self, bridge: BridgeConnection, address):
         """
             The bridge phase. Main phase of each socket, where the communication is happening.
         """
         dis = None
+        Networking.send(bridge.computer, Networking.assemble(Networking.Operations.PAIRED.value))
 
         while dis is None:
             dis = bridge.activate()

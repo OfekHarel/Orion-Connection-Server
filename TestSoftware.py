@@ -13,17 +13,14 @@ if __name__ == '__main__':
     while not done:
         msg = Networking.receive(s)
         if msg is not "":
-            print(msg)
             done = True
 
     if msg == "VALID":
         Networking.send(s, Networking.assemble("BLAH"))
-        print("Blah")
 
     msg = ""
     done = False
     while not done:
         msg = Networking.receive(s)
         if msg is not "":
-            print(msg)
             done = True

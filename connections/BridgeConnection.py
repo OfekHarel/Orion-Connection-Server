@@ -30,12 +30,11 @@ class BridgeConnection:
         """
         msg = Networking.receive(self.app)
         if msg is None:
-            print("none")
             return
         elif msg != "":
             split = Networking.split(msg)
             if split[0] == self.name:
-                if Networking.get_disconnected(msg) == Operations.DISCONNECT:
+                if Networking.get_disconnected(msg):
                     return Operations.DISCONNECT
 
                 else:
@@ -45,7 +44,7 @@ class BridgeConnection:
         if msg is None:
             return Operations.DISCONNECT
         elif msg != "":
-            if Networking.get_disconnected(msg) == Operations.DISCONNECT:
+            if Networking.get_disconnected(msg):
                 return Operations.DISCONNECT
 
             else:
