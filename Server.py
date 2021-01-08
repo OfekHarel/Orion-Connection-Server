@@ -49,10 +49,8 @@ class BridgeServer:
                     comp = self.dataTools.find(id_num)
                     name = Networking.split(Networking.receive(sock))[0]
                     bridge = BridgeConnection(sock, comp, name)
-
                     self.data.add(bridge=bridge)
                     self.data.remove(sync=comp)
-
                     synced = True, bridge
                 else:
                     msg = Networking.assemble(Operations.INVALID.value)
@@ -77,10 +75,11 @@ class BridgeServer:
         """
             The bridge phase. Main phase of each socket, where the communication is happening.
         """
-        dis = None
         Networking.send(bridge.computer, Networking.assemble(Networking.Operations.PAIRED.value))
-
-        while dis is None:
+        Networking.send(bridge.app, Networking.assemble(Networking.Operations.PAIRED.value))
+        
+        dis = None
+        while dis is not Operations.DISCONNECT:
             dis = bridge.activate()
 
         self.data.add(sync=SyncConnection(bridge.computer, bridge.id))
