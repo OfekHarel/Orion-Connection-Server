@@ -1,4 +1,5 @@
 from data_base.DataBase import DataBase
+from utils import Networking
 from utils.Enum import Enum
 
 
@@ -42,3 +43,9 @@ class DataTools:
                 return c
 
         return None
+
+    def is_pair_gone(self):
+        for conn in self.base.sync_connections:
+            a = Networking.receive(conn.sock)
+            if a is None:
+                self.base.sync_connections.remove(conn)

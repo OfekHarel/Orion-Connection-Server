@@ -62,7 +62,7 @@ def receive(sock: socket):
         return msg
 
     except Exception as e:
-        print(e)
+        return None
         pass
 
 

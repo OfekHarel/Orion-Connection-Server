@@ -1,4 +1,5 @@
 import threading
+import concurrent.futures
 
 from connections.Routine import Routine
 from connections.SyncConnection import SyncConnection
@@ -17,7 +18,7 @@ class BridgeConnection:
         self.computer = sync.sock
         self.id = sync.id
         self.name = name
-        self.is_acctive = False
+        self.is_active = False
 
     def __str__(self):
         """
@@ -32,11 +33,12 @@ class BridgeConnection:
         If a msg in the bridge is the type of DISCONNECT it will return.
         :return: DISCONNECT if it occurred.
         """
-        if not self.is_acctive:
-            t = threading.Thread(target=self.__app_bridge__, args=())
+        if not self.is_active:
+            t = threading.Thread(target=self.__app_bridge__)
             t.start()
-            self.is_acctive = True
-        self.__comp_bridge__()
+            self.is_active = True
+        val = self.__comp_bridge__()
+        return val
 
     def __app_bridge__(self):
         while True:
@@ -62,10 +64,10 @@ class BridgeConnection:
     def __comp_bridge__(self):
         msg = Networking.receive(self.computer)
         if msg is None:
-            return Operations.DISCONNECT
+            return 1
         elif msg != "":
             if Networking.get_disconnected(msg):
-                return Operations.DISCONNECT
+                return 2
 
             else:
                 Networking.send(self.app, msg)
