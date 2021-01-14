@@ -5,6 +5,7 @@ class DataBase:
     def __init__(self):
         self.sync_connections = []
         self.connections = []
+        self.routines = []
 
     def add(self, bridge=None, sync=None):
         """

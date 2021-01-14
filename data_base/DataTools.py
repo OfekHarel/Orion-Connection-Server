@@ -9,6 +9,7 @@ class Devices(Enum):
     APP = "APP"
     COMPUTER = "COMPUTER"
 
+
 class DataTools:
     """
     Util class for tools to use on the database.

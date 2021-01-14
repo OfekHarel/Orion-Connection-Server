@@ -87,3 +87,4 @@ class Operations(Enum):
     VALID = "VALID"
     DISCONNECT = "DISCON"
     PAIRED = "HELLO"
+    ROUTINE = "ROUT"

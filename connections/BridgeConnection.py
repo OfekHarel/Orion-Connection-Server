@@ -1,4 +1,6 @@
 import threading
+
+from connections.Routine import Routine
 from connections.SyncConnection import SyncConnection
 import socket
 
@@ -47,6 +49,12 @@ class BridgeConnection:
                 if split[0] == self.name:
                     if Networking.get_disconnected(msg):
                         return Operations.DISCONNECT
+
+                    if split[1] == Networking.Operations.ROUTINE:
+                        # split[2] - wanted time
+                        # split[3] - time zone relative to GMT
+                        # split[4] - ACTION
+                        Routine(split[2], split[3], self.computer, self.app, split[4])
 
                     else:
                         Networking.send(self.computer, Networking.assemble(split[1]))
