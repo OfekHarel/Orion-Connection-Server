@@ -85,7 +85,7 @@ class BridgeServer:
         Networking.send(bridge.app, Networking.assemble(Networking.Operations.PAIRED.value))
         
         dis = None
-        while dis is not None:
+        while dis is None:
             dis = bridge.activate()
 
         if dis == 1:

@@ -23,8 +23,7 @@ class Routine:
         self.comp = computer
         self.app = app
         self.is_run = True
-        self.name = msg[0]
-        self.msg = msg[1]
+        self.msg = msg
 
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
@@ -32,16 +31,17 @@ class Routine:
     def run(self):
         sent = False
         while self.is_run:
-            time_z = datetime.datetime.now(pytz.timezone('Zulu'))
-            c_time = time_z.strftime("%H:%M")
+            c_time = self.update_time()
             while self.is_run and (c_time != self.time):
                 sent = False
                 time.sleep(6)
-                c_time = time_z.strftime("%H:%M")
+                c_time = self.update_time()
 
             if self.is_run and (c_time == self.time) and (not sent):
                 Networking.send(self.comp, Networking.assemble(self.msg))
-                Networking.send(self.app, Networking.assemble(Networking.Operations.ROUTINE.value, self.name))
-
-                time.sleep(40)
+                time.sleep(60)
                 sent = True
+
+    def update_time(self):
+        time_z = datetime.datetime.now(pytz.timezone('Zulu'))
+        return time_z.strftime("%H:%M")

@@ -45,7 +45,9 @@ class DataTools:
         return None
 
     def is_pair_gone(self):
-        for conn in self.base.sync_connections:
-            a = Networking.receive(conn.sock)
-            if a is None:
-                self.base.sync_connections.remove(conn)
+        print("hey")
+        # for conn in self.base.sync_connections:
+        #     a = Networking.receive(conn.sock)
+        #     if a is None:
+        #         self.base.sync_connections.remove(conn)
+        print("mmiewo")
