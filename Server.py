@@ -88,11 +88,9 @@ class BridgeServer:
         while dis is None:
             dis = bridge.activate()
 
-        if dis == 1:
-            self.data.remove(bridge=bridge)
-        elif dis == 2:  # planned
-            self.data.add(sync=SyncConnection(bridge.computer, bridge.id))
-            self.data.remove(bridge=bridge)
+        print(123456)
+        self.data.add(sync=SyncConnection(bridge.computer, bridge.id))
+        self.data.remove(bridge=bridge)
 
     def run(self):
         """

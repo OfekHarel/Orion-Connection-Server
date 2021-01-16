@@ -44,10 +44,15 @@ def send(sock: socket, msg: str):
     :param sock: The network socket to send from.
     :param msg: The protocol based msg.
     """
-    size = str(len(msg)).zfill(HEADER)
-    sock.send(bytes(size.encode()))
-    sock.send(msg.encode())
-    print("send "+ msg)
+    try:
+        size = str(len(msg)).zfill(HEADER)
+        sock.send(bytes(size.encode()))
+        sock.send(msg.encode())
+        print("send "+ msg)
+        return True
+
+    except Exception as e:
+        return False
 
 
 def receive(sock: socket):

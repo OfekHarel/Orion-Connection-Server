@@ -36,23 +36,27 @@ class BridgeConnection:
         print("aaaaaaaaaaaaa")
         if not self.is_active:
             print("bbbbbbbbbbb")
+            self.is_active = True
             t = threading.Thread(target=self.__app_bridge__())
             t.start()
-            self.is_active = True
-        val = self.__comp_bridge__()
-        return val
+            self.is_active = False
+
+        if self.is_active:
+            val = self.__comp_bridge__()
+
+        return 1
 
     def __app_bridge__(self):
         while True:
             msg = Networking.receive(self.app)
 
             if msg is None:
-                return Operations.DISCONNECT
+                return
             elif msg != "":
                 split = Networking.split(msg)
                 if split[0] == self.name:
                     if Networking.get_disconnected(msg):
-                        return Operations.DISCONNECT
+                        return
 
                     if split[1] == Networking.Operations.ROUTINE.value:
                         # split[2] - wanted time
@@ -61,7 +65,9 @@ class BridgeConnection:
                         Routine(split[2], split[3], self.computer, self.app, split[4]).run()
 
                     else:
-                        Networking.send(self.computer, Networking.assemble(split[1]))
+                        val = Networking.send(self.computer, Networking.assemble(split[1]))
+                        if not val:
+                            return
 
     def __comp_bridge__(self):
         msg = Networking.receive(self.computer)
