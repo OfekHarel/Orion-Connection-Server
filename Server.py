@@ -18,7 +18,7 @@ class BridgeServer:
     """
     def __init__(self):
         self.server_sock = socket.socket()
-        self.server_sock.bind(('', 1690))
+        self.server_sock.bind(('', 1691))
         self.server_sock.listen(20)
 
         self.data = DataBase()
@@ -85,8 +85,7 @@ class BridgeServer:
 
         self.dataTools.is_pair_gone()
 
-        crypto = self.go_crypto(sock)
-        synced, bridge = self.__sync__(sock, crypto)
+        synced, bridge = self.__sync__(sock, self.go_crypto(sock))
         if synced:
             t = threading.Thread(target=self.__bridge__, args=(bridge, address))
             t.start()
@@ -117,5 +116,4 @@ class BridgeServer:
 if __name__ == '__main__':
     server = BridgeServer()
     server.run()
-
     server.server_sock.close()

@@ -50,14 +50,13 @@ def send(sock: socket, msg: str, crypto=None) -> bool:
     try:
         if crypto is not None:
             size = str(len(msg) * 4).zfill(HEADER)
-            sock.send(bytes(size.encode()))
+            sock.send(bytes(size.encode("UTF-8")))
             msg = crypto.encrypt_message(msg)
-            print("aaaaaaaaaaaaaaaaaa: " + msg)
-            sock.send(msg.encode('UTF-16LE'))
+            sock.send(msg.encode("UTF-16LE"))
         else:
             size = str(len(msg)).zfill(HEADER)
-            sock.send(bytes(size.encode()))
-            sock.send(msg.encode())
+            sock.send(bytes(size.encode("UTF-8")))
+            sock.send(msg.encode("UTF-8"))
 
         print("send {}->{}".format(size, msg))
         return True
@@ -74,14 +73,14 @@ def receive(sock: socket, crypto=None) -> str or None:
     :return: The raw decoded msg from the network.
     """
     try:
-        size = int(str(sock.recv(HEADER).decode()))
+        size = int(str(sock.recv(HEADER).decode("UTF-8", "ignore")))
         print(size)
-        msg = sock.recv(size + 1)
+        msg = sock.recv(size)
         if crypto is not None:
-            msg = crypto.decrypt_message(msg.decode('UTF-16LE'))
+            msg = crypto.decrypt_message(msg.decode("UTF-16LE", "ignore"))
             print(msg)
         else:
-            msg = msg.decode()
+            msg = msg.decode("UTF-8", "ignore")
         print("recv "+ msg)
         return msg
 

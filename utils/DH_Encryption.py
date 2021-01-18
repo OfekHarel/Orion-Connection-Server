@@ -21,7 +21,7 @@ def __is_prime__(num) -> bool:
 
 
 def generate_n() -> int:
-    min = 1000
+    min = 10000
     max = 100000
     num = random.randint(min, max)
     return num
@@ -50,7 +50,7 @@ class Encryption:
         return encrypted_message
 
     def decrypt_message(self, encrypted_message) -> str:
-        print("fuck " + encrypted_message)
+        print("fuckthisfuck " + str(self.full_key))
         decrypted_message = ""
         for c in encrypted_message:
             decrypted_message += chr(ord(c) - self.full_key)
