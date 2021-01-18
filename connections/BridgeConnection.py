@@ -6,6 +6,7 @@ from connections.SyncConnection import SyncConnection
 import socket
 
 from utils import Networking
+from utils.DH_Encryption import Encryption
 from utils.Networking import Operations, split
 
 
@@ -13,11 +14,13 @@ class BridgeConnection:
     """
     A bridge typed connection defines the flow connection between an app to a computer.
     """
-    def __init__(self, app: socket, sync: SyncConnection, name: str):
+    def __init__(self, app: socket, sync: SyncConnection, name: str, app_crypto: Encryption):
         self.app = app
         self.computer = sync.sock
         self.id = sync.id
         self.name = name
+        self.comp_crypto = sync.crypto
+        self.app_crypto = app_crypto
         self.is_active = False
 
     def __str__(self):
@@ -48,7 +51,7 @@ class BridgeConnection:
 
     def __app_bridge__(self):
         while True:
-            msg = Networking.receive(self.app)
+            msg = Networking.receive(self.app, crypto=self.app_crypto)
 
             if msg is None:
                 return
@@ -62,15 +65,15 @@ class BridgeConnection:
                         # split[2] - wanted time
                         # split[3] - time zone relative to GMT
                         # split[4] - ACTION
-                        Routine(split[2], split[3], self.computer, self.app, split[4]).run()
+                        Routine(split[2], split[3], self.computer, self.app, split[4], self.comp_crypto).run()
 
                     else:
-                        val = Networking.send(self.computer, Networking.assemble(split[1]))
+                        val = Networking.send(self.computer, Networking.assemble(split[1]), crypto=self.comp_crypto)
                         if not val:
                             return
 
     def __comp_bridge__(self):
-        msg = Networking.receive(self.computer)
+        msg = Networking.receive(self.computer, crypto=self.comp_crypto)
         if msg is None:
             return 1
         elif msg != "":
@@ -78,7 +81,7 @@ class BridgeConnection:
                 return 2
 
             else:
-                Networking.send(self.app, msg)
+                Networking.send(self.app, msg, crypto=self.app_crypto)
 
     def close(self):
         """

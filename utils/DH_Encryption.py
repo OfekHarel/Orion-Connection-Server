@@ -3,7 +3,7 @@ import random
 
 def generate_prime() -> int:
     min = 1
-    max = 1000
+    max = 100
     cached_primes = [i for i in range(min, max) if __is_prime__(i)]
     n = random.choice(cached_primes)
     return n
@@ -28,10 +28,10 @@ def generate_n() -> int:
 
 
 class Encryption:
-    def __init__(self, g, n, private_key):
+    def __init__(self, g, n):
         self.g = g
         self.n = n
-        self.private_key = private_key
+        self.private_key = generate_prime()
         self.full_key = None
 
     def get_partial_key(self) -> int:
@@ -46,12 +46,14 @@ class Encryption:
         encrypted_message = ""
         for c in message:
             encrypted_message += chr(ord(c) + self.full_key)
+        print(encrypted_message)
         return encrypted_message
 
     def decrypt_message(self, encrypted_message) -> str:
-        print(encrypted_message)
+        print("fuck " + encrypted_message)
         decrypted_message = ""
         for c in encrypted_message:
             decrypted_message += chr(ord(c) - self.full_key)
+            print(decrypted_message)
         return decrypted_message
 

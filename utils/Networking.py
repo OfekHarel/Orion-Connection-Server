@@ -1,6 +1,8 @@
+from binascii import unhexlify
 from socket import socket
-
+import unicodedata
 from data_base.DataTools import Devices
+from utils.DH_Encryption import Encryption
 from utils.Enum import Enum
 
 SEP = '!'
@@ -39,34 +41,52 @@ def sync_msg(msg: str):
     return dev, id_num
 
 
-def send(sock: socket, msg: str):
+def send(sock: socket, msg: str, crypto=None) -> bool:
     """
+    :param crypto:
     :param sock: The network socket to send from.
     :param msg: The protocol based msg.
     """
     try:
-        size = str(len(msg)).zfill(HEADER)
-        sock.send(bytes(size.encode()))
-        sock.send(msg.encode())
-        print("send "+ msg)
+        if crypto is not None:
+            size = str(len(msg) * 4).zfill(HEADER)
+            sock.send(bytes(size.encode()))
+            msg = crypto.encrypt_message(msg)
+            print("aaaaaaaaaaaaaaaaaa: " + msg)
+            sock.send(msg.encode('UTF-16LE'))
+        else:
+            size = str(len(msg)).zfill(HEADER)
+            sock.send(bytes(size.encode()))
+            sock.send(msg.encode())
+
+        print("send {}->{}".format(size, msg))
         return True
 
     except Exception as e:
+        print(e.args)
         return False
 
 
-def receive(sock: socket):
+def receive(sock: socket, crypto=None) -> str or None:
     """
+    :param crypto:
     :param sock: The network socket to receive from.
     :return: The raw decoded msg from the network.
     """
     try:
         size = int(str(sock.recv(HEADER).decode()))
-        msg = sock.recv(size + 1).decode()
+        print(size)
+        msg = sock.recv(size + 1)
+        if crypto is not None:
+            msg = crypto.decrypt_message(msg.decode('UTF-16LE'))
+            print(msg)
+        else:
+            msg = msg.decode()
         print("recv "+ msg)
         return msg
 
     except Exception as e:
+        print(e)
         return None
         pass
 
@@ -93,3 +113,4 @@ class Operations(Enum):
     DISCONNECT = "DISCON"
     PAIRED = "HELLO"
     ROUTINE = "ROUT"
+    CONNECT = "CONN"
