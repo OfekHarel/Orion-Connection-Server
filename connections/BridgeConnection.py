@@ -1,5 +1,4 @@
 import threading
-import concurrent.futures
 
 from connections.Routine import Routine
 from connections.SyncConnection import SyncConnection
@@ -7,7 +6,6 @@ import socket
 
 from utils import Networking
 from utils.DH_Encryption import Encryption
-from utils.Networking import Operations, split
 
 
 class BridgeConnection:

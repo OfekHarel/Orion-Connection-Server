@@ -25,7 +25,7 @@ class Routine:
         self.app = app
         self.is_run = True
         self.msg = msg
-        self.crypto
+        self.crypto = crypto
 
         self.thread = threading.Thread(target=self.run)
         self.thread.start()

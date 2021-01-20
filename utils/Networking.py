@@ -1,8 +1,5 @@
-from binascii import unhexlify
 from socket import socket
-import unicodedata
 from data_base.DataTools import Devices
-from utils.DH_Encryption import Encryption
 from utils.Enum import Enum
 
 SEP = '!'

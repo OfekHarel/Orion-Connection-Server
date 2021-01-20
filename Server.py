@@ -101,7 +101,7 @@ class BridgeServer:
         while dis is None:
             dis = bridge.activate()
 
-        self.data.add(sync=SyncConnection(bridge.computer, bridge.id))
+        self.data.add(sync=SyncConnection(bridge.computer, bridge.id, bridge.comp_crypto))
         self.data.remove(bridge=bridge)
 
     def run(self):
