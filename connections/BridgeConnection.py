@@ -34,18 +34,16 @@ class BridgeConnection:
         If a msg in the bridge is the type of DISCONNECT it will return.
         :return: DISCONNECT if it occurred.
         """
-        print("aaaaaaaaaaaaa")
         if not self.is_active:
-            print("bbbbbbbbbbb")
             self.is_active = True
             t = threading.Thread(target=self.__app_bridge__())
             t.start()
             self.is_active = False
 
         if self.is_active:
-            val = self.__comp_bridge__()
+            self.__comp_bridge__()
 
-        return 1
+        return True
 
     def __app_bridge__(self):
         while True:
@@ -63,7 +61,7 @@ class BridgeConnection:
                         # split[2] - wanted time
                         # split[3] - time zone relative to GMT
                         # split[4] - ACTION
-                        Routine(split[2], split[3], self.computer, self.app, split[4], self.comp_crypto).run()
+                        Routine(split[2], split[3], self.computer, self.app, split[4], self.comp_crypto)
 
                     else:
                         val = Networking.send(self.computer, Networking.assemble(split[1]), crypto=self.comp_crypto)
