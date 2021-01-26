@@ -5,7 +5,6 @@ class DataBase:
     def __init__(self):
         self.sync_connections = []
         self.connections = []
-        self.routines = []
 
     def add(self, bridge=None, sync=None):
         """
@@ -16,10 +15,11 @@ class DataBase:
 
         elif sync is not None:
             self.sync_connections.append(sync)
+
         else:
             pass
 
-    def remove(self, bridge=None, sync=None):
+    def remove(self, bridge=None, sync=None, routine_name=None):
         """
         This function removes a connection to the connection's type list.
         """
@@ -28,6 +28,7 @@ class DataBase:
 
         elif sync is not None:
             self.sync_connections.remove(sync)
+
         else:
             pass
 

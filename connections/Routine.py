@@ -10,7 +10,7 @@ from utils import Networking
 
 
 class Routine:
-    def __init__(self, wanted_time: str, time_zone: str, computer: socket, app: socket, msg: str, crypto: Encryption):
+    def __init__(self, wanted_time: str, time_zone: str, computer: socket, app: socket, msg: str, name:str , crypto: Encryption):
         time_formatted = wanted_time.split(":")
         h_zone = time_zone[1:3]
         m_zone = time_zone[3:]
@@ -26,6 +26,7 @@ class Routine:
         self.is_run = True
         self.msg = msg
         self.crypto = crypto
+        self.name = name
 
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
@@ -47,3 +48,6 @@ class Routine:
     def update_time(self):
         time_z = datetime.datetime.now(pytz.timezone('Zulu'))
         return time_z.strftime("%H:%M")
+
+    def kill(self):
+        self.is_run = False

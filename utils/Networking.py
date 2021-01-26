@@ -110,3 +110,4 @@ class Operations(Enum):
     PAIRED = "HELLO"
     ROUTINE = "ROUT"
     CONNECT = "CONN"
+    DEL_ROUTINE = "DROUT"

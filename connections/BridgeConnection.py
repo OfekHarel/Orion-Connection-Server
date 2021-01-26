@@ -20,6 +20,7 @@ class BridgeConnection:
         self.comp_crypto = sync.crypto
         self.app_crypto = app_crypto
         self.is_active = False
+        self.routines = []
 
     def __str__(self):
         """
@@ -61,8 +62,16 @@ class BridgeConnection:
                         # split[2] - wanted time
                         # split[3] - time zone relative to GMT
                         # split[4] - ACTION
-                        Routine(split[2], split[3], self.computer, self.app, split[4], self.comp_crypto)
+                        # split[5] - name
+                        self.routines.append(Routine(split[2], split[3], self.computer, self.app,
+                                                     split[4],  split[5], self.comp_crypto))
 
+                    elif split[1] == Networking.Operations.DEL_ROUTINE.value:
+                        # split[2] - name
+                        for rout in self.routines:
+                            if rout.name == split[2]:
+                                rout.kill()
+                                self.routines.remove(rout)
                     else:
                         val = Networking.send(self.computer, Networking.assemble(split[1]), crypto=self.comp_crypto)
                         if not val:
