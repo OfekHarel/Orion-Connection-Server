@@ -3,7 +3,7 @@ from data_base.DataTools import Devices
 from utils.Enum import Enum
 
 SEP = '!'
-HEADER = 3
+HEADER = 4
 
 
 def split(msg: str):
@@ -50,12 +50,14 @@ def send(sock: socket, msg: str, crypto=None) -> bool:
             sock.send(bytes(size.encode("UTF-8")))
             msg = crypto.encrypt_message(msg)
             sock.send(msg.encode("UTF-16LE"))
+            print("send {}->{}".format(size, crypto.decrypt_message(msg)))
+
         else:
             size = str(len(msg)).zfill(HEADER)
             sock.send(bytes(size.encode("UTF-8")))
             sock.send(msg.encode("UTF-8"))
+            print("send {}->{}".format(size, msg))
 
-        print("send {}->{}".format(size, msg))
         return True
 
     except Exception as e:
@@ -78,24 +80,31 @@ def receive(sock: socket, crypto=None) -> str or None:
             print(msg)
         else:
             msg = msg.decode("UTF-8", "ignore")
-        print("recv "+ msg)
+        print("recv " + msg)
         return msg
 
     except Exception as e:
+        print("fucking goat")
         print(e)
         return None
         pass
 
 
-def assemble(*msg: str):
+def assemble(*msg: str, arr=None):
     """
     This function will create a string that follows the protocol.
+    :param arr:
     :param msg: Strings to create the protocol string
     :return: The full protocol string
     """
+    print(msg)
     final = ''
-    for request in msg:
-        final += "{}{}".format(request, SEP)
+    if arr is None:
+        for request in msg:
+            final += "{}{}".format(request, SEP)
+    else:
+        for msg in arr:
+            final += "{}{}".format(msg, SEP)
 
     return final
 

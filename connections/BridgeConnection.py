@@ -1,4 +1,5 @@
 import threading
+import multiprocessing
 
 from connections.Routine import Routine
 from connections.SyncConnection import SyncConnection
@@ -21,6 +22,7 @@ class BridgeConnection:
         self.app_crypto = app_crypto
         self.is_active = False
         self.routines = []
+        self.com_proc = None
 
     def __str__(self):
         """
@@ -37,12 +39,12 @@ class BridgeConnection:
         """
         if not self.is_active:
             self.is_active = True
-            t = threading.Thread(target=self.__app_bridge__())
+            t = threading.Thread(target=self.__app_bridge__)
+            t1 = threading.Thread(target=self.__comp_bridge__)
+            self.com_proc = multiprocessing.Process(target=self.__comp_bridge__,)
+            self.com_proc.start()
             t.start()
             self.is_active = False
-
-        if self.is_active:
-            self.__comp_bridge__()
 
         return True
 
@@ -73,20 +75,25 @@ class BridgeConnection:
                                 rout.kill()
                                 self.routines.remove(rout)
                     else:
-                        val = Networking.send(self.computer, Networking.assemble(split[1]), crypto=self.comp_crypto)
+                        val = Networking.send(self.computer, Networking.assemble(arr=split[1:]), crypto=self.comp_crypto)
                         if not val:
                             return
 
     def __comp_bridge__(self):
-        msg = Networking.receive(self.computer, crypto=self.comp_crypto)
-        if msg is None:
-            return 1
-        elif msg != "":
-            if Networking.get_disconnected(msg):
-                return 2
+        while True:
+            print("aaaaaaaabbbbbbbbb")
+            msg = Networking.receive(self.computer, crypto=self.comp_crypto)
+            if msg is None:
+                print("aaaaaaaaaaaaaa")
+                return 1
+            elif msg != "":
+                print("8888888888888888")
+                if Networking.get_disconnected(msg):
+                    Networking.send(self.app, msg, crypto=self.app_crypto)
+                    return 2
 
-            else:
-                Networking.send(self.app, msg, crypto=self.app_crypto)
+                else:
+                    Networking.send(self.app, msg, crypto=self.app_crypto)
 
     def close(self):
         """
