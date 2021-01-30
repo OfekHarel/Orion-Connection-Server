@@ -22,7 +22,9 @@ class BridgeConnection:
         self.app_crypto = app_crypto
         self.is_active = False
         self.routines = []
+
         self.com_proc = None
+        self.app_proc = None
 
     def __str__(self):
         """
@@ -39,11 +41,10 @@ class BridgeConnection:
         """
         if not self.is_active:
             self.is_active = True
-            t = threading.Thread(target=self.__app_bridge__)
-            t1 = threading.Thread(target=self.__comp_bridge__)
-            self.com_proc = multiprocessing.Process(target=self.__comp_bridge__,)
+            self.app_proc = multiprocessing.Process(target=self.__app_bridge__())
+            self.com_proc = multiprocessing.Process(target=self.__comp_bridge__)
             self.com_proc.start()
-            t.start()
+            self.app_proc.start()
             self.is_active = False
 
         return True
