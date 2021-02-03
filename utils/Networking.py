@@ -12,8 +12,11 @@ def split(msg: str):
     :param msg: A raw msg from network to split.
     :return: A list when each index contains a part of the msg.
     """
-    msg = msg.split('!')
-    return msg[:len(msg) - 1]
+    try:
+        msg = msg.split('!')
+        return msg[:len(msg) - 1]
+    except AttributeError:
+        pass
 
 
 def get_disconnected(msg: str):
@@ -60,8 +63,10 @@ def send(sock: socket, msg: str, crypto=None) -> bool:
 
         return True
 
-    except Exception as e:
-        print(e.args)
+    except ValueError:
+        return True
+
+    except Exception:
         return False
 
 
@@ -83,11 +88,12 @@ def receive(sock: socket, crypto=None) -> str or None:
         print("recv " + msg)
         return msg
 
+    except OSError or ValueError:
+        return ""
+
     except Exception as e:
-        print("fucking goat")
         print(e)
         return None
-        pass
 
 
 def assemble(*msg: str, arr=None):

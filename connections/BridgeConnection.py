@@ -1,5 +1,4 @@
 import threading
-import multiprocessing
 
 from connections.Routine import Routine
 from connections.SyncConnection import SyncConnection
@@ -7,6 +6,7 @@ import socket
 
 from utils import Networking
 from utils.DH_Encryption import Encryption
+from utils.SmartThread import SmartThread
 
 
 class BridgeConnection:
@@ -16,11 +16,12 @@ class BridgeConnection:
     def __init__(self, app: socket, sync: SyncConnection, name: str, app_crypto: Encryption):
         self.app = app
         self.computer = sync.sock
+
         self.id = sync.id
         self.name = name
         self.comp_crypto = sync.crypto
         self.app_crypto = app_crypto
-        self.is_active = False
+        self.is_active = True
         self.routines = []
 
         self.com_proc = None
@@ -37,67 +38,80 @@ class BridgeConnection:
         This function builds the virtual bridge between thr devices.
         This bridge allows flow of unsynchronized network transportation.
         If a msg in the bridge is the type of DISCONNECT it will return.
-        :return: DISCONNECT if it occurred.
         """
-        if not self.is_active:
-            self.is_active = True
-            self.app_proc = multiprocessing.Process(target=self.__app_bridge__())
-            self.com_proc = multiprocessing.Process(target=self.__comp_bridge__)
-            self.com_proc.start()
-            self.app_proc.start()
-            self.is_active = False
+        self.computer.setblocking(False)
+        self.app.setblocking(False)
 
-        return True
+        self.app_proc = SmartThread(self.__app_bridge__, "app")
+        self.com_proc = SmartThread(self.__comp_bridge__, "computer")
+        self.app_proc.start()
+        self.com_proc.start()
+
+        threading.Thread(target=self.is_running()).start()
+
+        self.computer.setblocking(True)
+        self.app.setblocking(True)
 
     def __app_bridge__(self):
-        while True:
-            msg = Networking.receive(self.app, crypto=self.app_crypto)
+        try:
+            is_done = False
 
-            if msg is None:
-                return
-            elif msg != "":
-                split = Networking.split(msg)
-                if split[0] == self.name:
-                    if Networking.get_disconnected(msg):
-                        return
+            while not is_done:
+                msg = Networking.receive(self.app, crypto=self.app_crypto)
 
-                    if split[1] == Networking.Operations.ROUTINE.value:
-                        # split[2] - wanted time
-                        # split[3] - time zone relative to GMT
-                        # split[4] - ACTION
-                        # split[5] - name
-                        self.routines.append(Routine(split[2], split[3], self.computer, self.app,
-                                                     split[4],  split[5], self.comp_crypto))
+                if msg is None:
+                    is_done = True
 
-                    elif split[1] == Networking.Operations.DEL_ROUTINE.value:
-                        # split[2] - name
-                        for rout in self.routines:
-                            if rout.name == split[2]:
-                                rout.kill()
-                                self.routines.remove(rout)
-                    else:
-                        val = Networking.send(self.computer, Networking.assemble(arr=split[1:]), crypto=self.comp_crypto)
-                        if not val:
-                            return
+                elif msg != "":
+                    split = Networking.split(msg)
+                    if split[0] == self.name:
+                        if Networking.get_disconnected(msg):
+                            is_done = True
+
+                        if split[1] == Networking.Operations.ROUTINE.value:
+                            # split[2] - wanted time
+                            # split[3] - time zone relative to GMT
+                            # split[4] - ACTION
+                            # split[5] - name
+                            self.routines.append(Routine(split[2], split[3], self.computer, self.app,
+                                                         split[4],  split[5], self.comp_crypto))
+
+                        elif split[1] == Networking.Operations.DEL_ROUTINE.value:
+                            # split[2] - name
+                            for rout in self.routines:
+                                if rout.name == split[2]:
+                                    rout.kill()
+                                    self.routines.remove(rout)
+                        else:
+                            val = Networking.send(self.computer, Networking.assemble(arr=split[1:]), crypto=self.comp_crypto)
+                            if not val:
+                                is_done = True
+        finally:
+            pass
 
     def __comp_bridge__(self):
-        while True:
-            print("aaaaaaaabbbbbbbbb")
-            msg = Networking.receive(self.computer, crypto=self.comp_crypto)
-            if msg is None:
-                print("aaaaaaaaaaaaaa")
-                return 1
-            elif msg != "":
-                print("8888888888888888")
-                if Networking.get_disconnected(msg):
-                    Networking.send(self.app, msg, crypto=self.app_crypto)
-                    return 2
+        try:
+            is_done = False
 
-                else:
-                    Networking.send(self.app, msg, crypto=self.app_crypto)
+            while not is_done:
+                msg = Networking.receive(self.computer, crypto=self.comp_crypto)
 
-    def close(self):
-        """
-        This function will demolish a virtual bridge between the devices.
-        """
-        pass
+                if msg is None:
+                    is_done = True
+                elif msg != "":
+                    if Networking.get_disconnected(msg):
+                        Networking.send(self.app, msg, crypto=self.app_crypto)
+                        is_done = True
+                    else:
+                        Networking.send(self.app, msg, crypto=self.app_crypto)
+        finally:
+            pass
+
+    def is_running(self):
+        while self.app_proc.is_alive() and self.com_proc.is_alive():
+            pass
+        t = self.app_proc if self.app_proc.is_alive() else self.com_proc
+        t.raise_exception()
+        print(t.name)
+        while t.is_alive():
+            pass

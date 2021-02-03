@@ -99,14 +99,10 @@ class BridgeServer:
         specs = Networking.split(Networking.receive(bridge.computer, crypto=bridge.comp_crypto))
         specs[0] = Networking.Operations.PAIRED.value
         Networking.send(bridge.app, Networking.assemble(arr=specs), crypto=bridge.app_crypto)
-        
-        dis = None
-        while dis is None:
-            dis = bridge.activate()
+
+        bridge.activate()
 
         self.data.add(sync=SyncConnection(bridge.computer, bridge.id, bridge.comp_crypto))
-        bridge.com_proc.terminate()
-        bridge.app_proc.terminate()
         self.data.remove(bridge=bridge)
 
     def run(self):

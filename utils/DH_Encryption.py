@@ -50,7 +50,6 @@ class Encryption:
         return encrypted_message
 
     def decrypt_message(self, encrypted_message) -> str:
-        print("fuckthisfuck " + str(self.full_key))
         decrypted_message = ""
         for c in encrypted_message:
             decrypted_message += chr(ord(c) - self.full_key)
