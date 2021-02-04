@@ -63,9 +63,6 @@ def send(sock: socket, msg: str, crypto=None) -> bool:
 
         return True
 
-    except ValueError:
-        return True
-
     except Exception:
         return False
 
@@ -77,18 +74,18 @@ def receive(sock: socket, crypto=None) -> str or None:
     :return: The raw decoded msg from the network.
     """
     try:
-        size = int(str(sock.recv(HEADER).decode("UTF-8", "ignore")))
-        print(size)
+        size = str(sock.recv(HEADER).decode("UTF-8", "ignore"))
+        size = int(size)
         msg = sock.recv(size)
         if crypto is not None:
             msg = crypto.decrypt_message(msg.decode("UTF-16LE", "ignore"))
             print(msg)
         else:
             msg = msg.decode("UTF-8", "ignore")
-        print("recv " + msg)
+        print("recv" + msg)
         return msg
 
-    except OSError or ValueError:
+    except OSError:
         return ""
 
     except Exception as e:

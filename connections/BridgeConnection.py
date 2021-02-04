@@ -4,6 +4,7 @@ from connections.Routine import Routine
 from connections.SyncConnection import SyncConnection
 import socket
 
+from data_base.Routines import Routines
 from utils import Networking
 from utils.DH_Encryption import Encryption
 from utils.SmartThread import SmartThread
@@ -13,6 +14,7 @@ class BridgeConnection:
     """
     A bridge typed connection defines the flow connection between an app to a computer.
     """
+
     def __init__(self, app: socket, sync: SyncConnection, name: str, app_crypto: Encryption):
         self.app = app
         self.computer = sync.sock
@@ -22,7 +24,7 @@ class BridgeConnection:
         self.comp_crypto = sync.crypto
         self.app_crypto = app_crypto
         self.is_active = True
-        self.routines = []
+        self.routines = Routines(name)
 
         self.com_proc = None
         self.app_proc = None
@@ -31,7 +33,8 @@ class BridgeConnection:
         """
         A full description of the connection
         """
-        return "\nApp Host: {}\nComp Host: {}\nName: {}".format(self.app.getpeername(), self.app.getpeername(), self.name)
+        return "\nApp Host: {}\nComp Host: {}\nName: {}".format(self.app.getpeername(), self.app.getpeername(),
+                                                                self.name)
 
     def activate(self):
         """
@@ -40,7 +43,6 @@ class BridgeConnection:
         If a msg in the bridge is the type of DISCONNECT it will return.
         """
         self.computer.setblocking(False)
-        self.app.setblocking(False)
 
         self.app_proc = SmartThread(self.__app_bridge__, "app")
         self.com_proc = SmartThread(self.__comp_bridge__, "computer")
@@ -48,9 +50,6 @@ class BridgeConnection:
         self.com_proc.start()
 
         threading.Thread(target=self.is_running()).start()
-
-        self.computer.setblocking(True)
-        self.app.setblocking(True)
 
     def __app_bridge__(self):
         try:
@@ -66,6 +65,7 @@ class BridgeConnection:
                     split = Networking.split(msg)
                     if split[0] == self.name:
                         if Networking.get_disconnected(msg):
+                            self.routines.name = ""
                             is_done = True
 
                         if split[1] == Networking.Operations.ROUTINE.value:
@@ -73,17 +73,18 @@ class BridgeConnection:
                             # split[3] - time zone relative to GMT
                             # split[4] - ACTION
                             # split[5] - name
-                            self.routines.append(Routine(split[2], split[3], self.computer, self.app,
-                                                         split[4],  split[5], self.comp_crypto))
+                            self.routines.routines.append(Routine(split[2], split[3], self.computer, self.app,
+                                                                  split[4], split[5], self.comp_crypto))
 
                         elif split[1] == Networking.Operations.DEL_ROUTINE.value:
                             # split[2] - name
-                            for rout in self.routines:
+                            for rout in self.routines.routines:
                                 if rout.name == split[2]:
                                     rout.kill()
-                                    self.routines.remove(rout)
+                                    self.routines.routines.remove(rout)
                         else:
-                            val = Networking.send(self.computer, Networking.assemble(arr=split[1:]), crypto=self.comp_crypto)
+                            val = Networking.send(self.computer, Networking.assemble(arr=split[1:]),
+                                                  crypto=self.comp_crypto)
                             if not val:
                                 is_done = True
         finally:
@@ -101,6 +102,7 @@ class BridgeConnection:
                 elif msg != "":
                     if Networking.get_disconnected(msg):
                         Networking.send(self.app, msg, crypto=self.app_crypto)
+                        self.routines.name = ""
                         is_done = True
                     else:
                         Networking.send(self.app, msg, crypto=self.app_crypto)
@@ -112,6 +114,7 @@ class BridgeConnection:
             pass
         t = self.app_proc if self.app_proc.is_alive() else self.com_proc
         t.raise_exception()
-        print(t.name)
+        print(t.name + " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         while t.is_alive():
             pass
+        self.computer.setblocking(True)

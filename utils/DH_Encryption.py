@@ -3,7 +3,7 @@ import random
 
 def generate_prime() -> int:
     min = 1
-    max = 100
+    max = 50
     cached_primes = [i for i in range(min, max) if __is_prime__(i)]
     n = random.choice(cached_primes)
     return n
@@ -21,8 +21,8 @@ def __is_prime__(num) -> bool:
 
 
 def generate_n() -> int:
-    min = 10000
-    max = 100000
+    min = 10
+    max = 100
     num = random.randint(min, max)
     return num
 

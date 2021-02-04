@@ -101,7 +101,9 @@ class BridgeServer:
         Networking.send(bridge.app, Networking.assemble(arr=specs), crypto=bridge.app_crypto)
 
         bridge.activate()
+        print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
 
+        self.dataTools.update_routines(bridge.routines)
         self.data.add(sync=SyncConnection(bridge.computer, bridge.id, bridge.comp_crypto))
         self.data.remove(bridge=bridge)
 

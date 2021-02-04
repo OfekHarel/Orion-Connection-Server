@@ -1,4 +1,5 @@
 from data_base.DataBase import DataBase
+from data_base.Routines import Routines
 from utils.Enum import Enum
 
 
@@ -50,3 +51,12 @@ class DataTools:
         #     if a is None:
         #         self.base.sync_connections.remove(conn)
         print("mmiewo")
+
+    def update_routines(self, routine: Routines):
+        for rout in self.base.routines:
+            if rout.name == "":
+                self.base.routines.remove(rout)
+
+            if rout.name == routine.name:
+                self.base.routines.remove(rout)
+                self.base.routines.append(routine)
