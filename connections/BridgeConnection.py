@@ -114,7 +114,7 @@ class BridgeConnection:
             pass
         t = self.app_proc if self.app_proc.is_alive() else self.com_proc
         t.raise_exception()
-        print(t.name + " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        print("bye " + t.name)
         while t.is_alive():
             pass
         self.computer.setblocking(True)

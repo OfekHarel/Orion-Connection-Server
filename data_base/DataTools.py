@@ -1,5 +1,6 @@
 from data_base.DataBase import DataBase
 from data_base.Routines import Routines
+from utils import Networking
 from utils.Enum import Enum
 
 
@@ -45,12 +46,10 @@ class DataTools:
         return None
 
     def is_pair_gone(self):
-        print("hey")
-        # for conn in self.base.sync_connections:
-        #     a = Networking.receive(conn.sock)
-        #     if a is None:
-        #         self.base.sync_connections.remove(conn)
-        print("mmiewo")
+        for conn in self.base.sync_connections:
+            a = Networking.receive(conn.sock)
+            if a is None:
+                self.base.sync_connections.remove(conn)
 
     def update_routines(self, routine: Routines):
         for rout in self.base.routines:

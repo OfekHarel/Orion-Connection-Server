@@ -75,6 +75,8 @@ def receive(sock: socket, crypto=None) -> str or None:
     """
     try:
         size = str(sock.recv(HEADER).decode("UTF-8", "ignore"))
+        if len(size) != HEADER and size.isdigit():
+            raise OSError
         size = int(size)
         msg = sock.recv(size)
         if crypto is not None:
@@ -86,6 +88,7 @@ def receive(sock: socket, crypto=None) -> str or None:
         return msg
 
     except OSError:
+        # return None if sock.getblocking() else ""
         return ""
 
     except Exception as e:

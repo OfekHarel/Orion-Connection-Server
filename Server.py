@@ -83,7 +83,7 @@ class BridgeServer:
        """
         sock, address = self.server_sock.accept()
 
-        self.dataTools.is_pair_gone()
+        # self.dataTools.is_pair_gone()
 
         synced, bridge = self.__sync__(sock, self.go_crypto(sock))
         if synced:
@@ -101,7 +101,6 @@ class BridgeServer:
         Networking.send(bridge.app, Networking.assemble(arr=specs), crypto=bridge.app_crypto)
 
         bridge.activate()
-        print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
 
         self.dataTools.update_routines(bridge.routines)
         self.data.add(sync=SyncConnection(bridge.computer, bridge.id, bridge.comp_crypto))
