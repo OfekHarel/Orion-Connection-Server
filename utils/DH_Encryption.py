@@ -46,13 +46,11 @@ class Encryption:
         encrypted_message = ""
         for c in message:
             encrypted_message += chr((ord(c) + self.full_key) % 256)
-        print(encrypted_message)
         return encrypted_message
 
     def decrypt_message(self, encrypted_message) -> str:
         decrypted_message = ""
         for c in encrypted_message:
             decrypted_message += chr((ord(c) - self.full_key) % 256)
-            print(decrypted_message)
         return decrypted_message
 

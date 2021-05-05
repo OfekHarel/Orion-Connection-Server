@@ -53,13 +53,11 @@ def send(sock: socket, msg: str, crypto=None) -> bool:
             sock.send(bytes(size.encode("UTF-8")))
             msg = crypto.encrypt_message(msg)
             sock.send(msg.encode("UTF-16LE"))
-            print("send {}->{}".format(size, crypto.decrypt_message(msg)))
 
         else:
             size = str(len(msg)).zfill(HEADER)
             sock.send(bytes(size.encode("UTF-8")))
             sock.send(msg.encode("UTF-8"))
-            print("send {}->{}".format(size, msg))
 
         return True
 
@@ -81,10 +79,8 @@ def receive(sock: socket, crypto=None) -> str or None:
         msg = sock.recv(size)
         if crypto is not None:
             msg = crypto.decrypt_message(msg.decode("UTF-16LE", "ignore"))
-            print(msg)
         else:
             msg = msg.decode("UTF-8", "ignore")
-        print("recv" + msg)
         return msg
 
     except OSError:
@@ -92,7 +88,6 @@ def receive(sock: socket, crypto=None) -> str or None:
         return ""
 
     except Exception as e:
-        print(e)
         return None
 
 
@@ -103,7 +98,6 @@ def assemble(*msg: str, arr=None):
     :param msg: Strings to create the protocol string
     :return: The full protocol string
     """
-    print(msg)
     final = ''
     if arr is None:
         for request in msg:
